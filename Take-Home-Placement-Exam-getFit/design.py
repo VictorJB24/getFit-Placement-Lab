@@ -60,45 +60,64 @@ def calculateAverageAndTotal(stepList):
 
 # --------------------------------------------------------- #
 
-def calculateBarSize():
+def getTopPartHeight(height):
     """
-    Purpose: Calculate the width and heights of the bars
+    Purpose: To calculate the height of the top part of the graphic.
+    Parameters: An integer representing the height the user previously inputted.
+    Returns: A float representing the height of the top part of the graphic.
+    """
+    print("In getTopPartHeight()")
+    topPartHeight = height * .1  # calculates the height to be ten percent of the total graphic height
+    return topPartHeight
+
+
+# --------------------------------------------------------- #
+
+def calculateBarSize(stepsInWeekList, height, width):
+    """
+    Purpose: to Calculate the width and heights of the bars
     Parameters: The list of steps the user took each day of the week, and the height and width the user
                 previously inputted.
     Returns: A float representing the width of the bars, and a list of floats representing the heights
             of the bars.
     """
     print("In calculateBarSize()")
-    height = calculateHeight()
-    return numRolls
+    barHeights = calculateBarHeight(stepsInWeekList, height)
+    barWidth = width / 7  # calculating the pixels per day
+    return barHeights, barWidth
 
 
 # --------------------------------------------------------- #
 
-def calculateBarHeight(n):
+def calculateBarHeight(stepsInWeekList, height):
     """
-    Purpose: Randomly roll n dice.
-    Parameters:  An integer n representing the number of dice to roll.
-    Returns: A list containing the dice rolls of length n.
+    Purpose: To calculate the height of all the bars.
+    Parameters: The list of steps the user walked every day throughout a previously specified week, and
+                the total height of the graphic the user previously inputted.
+    Returns: A list of floats representing the heights of each bar.
     """
-    print("In rollDice()")
-    roll = rollOne()  # will call rollOne() n times
-    diceRolls = [1] * n
-    return diceRolls
+    print("In calculateBarHeight()")
+    barHeights = []
+    bottomPartHeight = height * .9  # calculates the height to be the remaining ninety percent of the graphic
+    maxStepCount = max(stepsInWeekList)  # calculates the maximum amount of steps the user took in one day of the week
+    pixelsPerStep = bottomPartHeight / maxStepCount  # calculates the amount of pixels per step
+    for stepsInOneDay in stepsInWeekList:
+        heightOfOneBar = pixelsPerStep * stepsInOneDay  # calculating the height of each bar individually
+        barHeights.append(heightOfOneBar)
+    return barHeights
 
 
 # --------------------------------------------------------- #
 
-def allSame(L):
+def calculateTextSize(width):
     """
-    Purpose: Checks whether the values in a list are equal.
-    Parameters:  A list of values.
-    Returns: True if all the values in the list are the same.
-                     Otherwise False.
+    Purpose: To calculate the size of the text displayed on the graphic.
+    Parameters: The width of the total graphic inputted by the user.
+    Returns: A float representing the size of the text.
     """
-    print("In allSame()")
-    ITEMS_EQUAL = True
-    return ITEMS_EQUAL
+    print("In calculateTextSize()")
+    textSize = width * .1  # calculating text size as ten percent of total width
+    return textSize
 
 
 # --------------------------------------------------------- #
@@ -125,24 +144,26 @@ def main():
     stepsInWeekList = getWeekStepData(filename)
 
     # calculate the average and total number of steps
-    total, avg = calculateAverageAndTotal(stepsInWeekList)
+    totalSteps, avgOfSteps = calculateAverageAndTotal(stepsInWeekList)
 
     # calculate the size of the top part of the graphic
-    topPartHeight = getTopPartHeight()
+    topPartHeight = getTopPartHeight(int(height))
 
     # calculate the size of the bars
-    heights, width = calculateBarSize()
+    heightsOfBars, widthOfBars = calculateBarSize(stepsInWeekList, int(height), int(width))
+    print(f"Heights: {heightsOfBars}\nWidth: {widthOfBars}")
+
+    # calculate the size of the text
+    textSize = calculateTextSize(int(width))
+    print(textSize)
+
     # mywin = GraphWin("ponies!!", 600, 500)
     # mywin.setBackground("lightblue")
     # key = mywin.getKey()  # will pause here until key pressed in graph win
 
-    # run dice-roll simulations and compute the average number of rolls required to roll 5 of a kind
-    # numTrials = getPositiveInteger("Enter number of simulations to run: ")
-    # avg = simulate(numTrials)
-
     # compute probability of rolling five of a kind with six-sided dice, & display probability & average
-    print("The average is: %f" % avg)
-    print("The probability is: %f" % (1 / avg))
+    print("The average is: %f" % 1)
+    print("The probability is: %f" % (1 / 2))
 
 
 main()
