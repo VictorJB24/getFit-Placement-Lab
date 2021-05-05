@@ -75,7 +75,7 @@ def getTopPartHeight(height):
 
 def calculateBarSize(stepsInWeekList, height, width):
     """
-    Purpose: to Calculate the width and heights of the bars
+    Purpose: To calculate the width and heights of the bars
     Parameters: The list of steps the user took each day of the week, and the height and width the user
                 previously inputted.
     Returns: A float representing the width of the bars, and a list of floats representing the heights
@@ -97,10 +97,25 @@ def calculateBarHeight(stepsInWeekList, height):
     Returns: A list of floats representing the heights of each bar.
     """
     print("In calculateBarHeight()")
-    barHeights = []
     bottomPartHeight = height * .9  # calculates the height to be the remaining ninety percent of the graphic
     maxStepCount = max(stepsInWeekList)  # calculates the maximum amount of steps the user took in one day of the week
     pixelsPerStep = bottomPartHeight / maxStepCount  # calculates the amount of pixels per step
+    barHeights = calculateHeightOfOneBar(stepsInWeekList, pixelsPerStep)
+    return barHeights
+
+
+# --------------------------------------------------------- #
+
+def calculateHeightOfOneBar(stepsInWeekList, pixelsPerStep):
+    """
+    Purpose: To calculate the height of one bar of the graphic.
+    Parameters:  The list of steps the user walked every day throughout a previously specified week, and
+                a float representing the pixels per step that was previously calculated in
+                calculateBarHeight().
+    Returns: A list of floats representing the heights of each individual bar.
+    """
+    print("In calculateHeightOfOneBar")
+    barHeights = []
     for stepsInOneDay in stepsInWeekList:
         heightOfOneBar = pixelsPerStep * stepsInOneDay  # calculating the height of each bar individually
         barHeights.append(heightOfOneBar)
@@ -118,6 +133,39 @@ def calculateTextSize(width):
     print("In calculateTextSize()")
     textSize = width * .1  # calculating text size as ten percent of total width
     return textSize
+
+
+# --------------------------------------------------------- #
+
+def generateGraphic(stepGoal, width, height, totalSteps, avgOfSteps, topPartHeight, heightsOfBars, widthOfBars,
+                    textSize):
+    """
+    Purpose: To generate the final graphic.
+    Parameters: The step goal, total steps, average of steps, width and height of the graphic, individual heights of
+                each bar, widths of all the bars, the height of the top part of the graphic, and the
+                text size.
+    Returns: None
+    """
+    print("In generateGraphic()")
+    graphicWindow = GraphWin("Get Fit!", width, height)  # creates new GraphWin object
+    createTopPartOfGraphic(graphicWindow)
+    graphicWindow.getMouse()  # Pause to view result
+    graphicWindow.close()
+    # createBottomPartOfGraphic()
+    return 1
+
+
+# --------------------------------------------------------- #
+
+def createTopPartOfGraphic(graphicWindow):
+    """
+    Purpose: To create the top part of the graphic.
+    Parameters: The previously created instance of the GraphicWin object.
+    Returns: The modified GraphicWin object.
+    """
+    print("In createTopPartOfGraphic()")
+    roll = 1  # will use the random library to simulate a die roll
+    return roll
 
 
 # --------------------------------------------------------- #
@@ -155,11 +203,11 @@ def main():
 
     # calculate the size of the text
     textSize = calculateTextSize(int(width))
-    print(textSize)
+    print("Text size:", textSize)
 
-    # mywin = GraphWin("ponies!!", 600, 500)
-    # mywin.setBackground("lightblue")
-    # key = mywin.getKey()  # will pause here until key pressed in graph win
+    # generate the graphic
+    generateGraphic(stepGoal, width, height, totalSteps, avgOfSteps, topPartHeight, heightsOfBars, widthOfBars,
+                    textSize)
 
     # compute probability of rolling five of a kind with six-sided dice, & display probability & average
     print("The average is: %f" % 1)
