@@ -141,7 +141,8 @@ def generateGraphic(stepGoal, width, height, topPartHeight, heightsOfBars, width
     graphicWindow.setCoords(0, 0, graphicWindow.getWidth(), graphicWindow.getHeight())
     graphicWindow.setBackground("silver")
     graphicWindow, totalSteps = createTopPartOfGraphic(graphicWindow, stepsInWeekList, stepGoal, textSize)
-    createBottomPartOfGraphic(graphicWindow, daysOfWeek, totalSteps, heightsOfBars, widthOfBars)
+    createBottomPartOfGraphic(graphicWindow, daysOfWeek, heightsOfBars, widthOfBars, stepGoal,
+                              stepsInWeekList, height, width)
     graphicWindow.getMouse()  # Pause to view result
     graphicWindow.close()
 
@@ -207,35 +208,94 @@ def calculateAverageAndTotal(stepList):
 
 # --------------------------------------------------------- #
 
-def createBottomPartOfGraphic(graphicWindow, daysOfWeek, totalSteps, heightsOfBars, widthOfBars):
+def createBottomPartOfGraphic(graphicWindow, daysOfWeek, heightsOfBars, widthOfBars, stepGoal,
+                              stepsInWeekList, height, width):
     """
     Purpose: To create the bottom part of the graphic.
-    Parameters: The names of the days of the week, the total steps the user took,
+    Parameters: The previously created GraphicWin object, a list containing the days of the week, the
+                list with the heights of the bars, the width of the bars, the step goal previously
+                inputted by the user, the list with the number of steps the user took throughout
+                the week, the height of the graphic, and the width of the graphic.
     Returns: None
     """
     print("In createBottomPartOfGraphic()")
-    counter = 0
-    for element in heightsOfBars:
-        barUpperLeftCoord = Point(widthOfBars * (counter + 1), element)
-        barLowerRightCoord = Point(widthOfBars * (counter + 1), 400)
-        barRectangle = Rectangle(barUpperLeftCoord, barLowerRightCoord)
-        barRectangle.draw(graphicWindow)
-        print(element)
-    roll = 1  # will use the random library to simulate a die roll
-    return roll
+    generateBars(heightsOfBars, graphicWindow, widthOfBars, stepGoal, stepsInWeekList, height, width,
+                 daysOfWeek)
 
 
 # --------------------------------------------------------- #
 
-def rollOne():
+def generateBars(heightsOfBars, graphicWindow, widthOfBars, stepGoal, stepsInWeekList, height, width, daysOfWeek):
     """
-    Purpose: Randomly roll one die.
-    Parameters:  None
-    Returns: An integer representing the die value between 1 and 6.
+    Purpose: To generate the bars on the graphic.
+    Parameters: The list with the heights of the bars, the previously created GraphicWin
+                object, the width of the bars, the step goal, the list of steps the user took
+                throughout the week, the height of the graphic, the width of the graphic, and the
+                list of the days of the week.
+    Returns: The new GraphicWin object.
     """
-    print("In rollOne()")
-    roll = 1  # will use the random library to simulate a die roll
-    return roll
+    print("In generateBars()")
+    counter = 0
+    for element in heightsOfBars:
+        barUpperLeftCoord = Point(widthOfBars * counter, element)
+        barLowerRightCoord = Point(widthOfBars * (counter + 1), 0)
+        barRectangle = Rectangle(barUpperLeftCoord, barLowerRightCoord)
+        barRectangle.draw(graphicWindow)
+        graphicWindow = colorBars(graphicWindow, stepGoal, stepsInWeekList, barRectangle, element, height, width)
+        graphicWindow = setBarText(graphicWindow, height, daysOfWeek, counter, widthOfBars, width)
+        counter += 1
+    return graphicWindow
+
+
+# --------------------------------------------------------- #
+
+def colorBars(graphicWindow, stepGoal, stepsInWeekList, barRectangle, heightOfBar, height, width):
+    """
+    Purpose: To color in the bars with the appropriate color.
+    Parameters: The GraphicWin object, the step goal, the list of steps the user took throughout
+                the week, the bar object, the height of the bar, the height of the graphic, and
+                the width of the graphic.
+    Returns: The new GraphicWin object.
+    """
+    print("In colorBars()")
+    graphicWindow, goalLineHeight = generateGoalLine(graphicWindow, stepGoal, stepsInWeekList, height, width)
+    if goalLineHeight > heightOfBar:
+        barRectangle.setFill("red")
+    else:
+        barRectangle.setFill("green")
+    return graphicWindow
+
+
+# --------------------------------------------------------- #
+
+def generateGoalLine(graphicWindow, stepGoal, stepsInWeekList, height, width):
+    """
+    Purpose: To generate the goal line representing the step goal previously inputted by the user.
+    Parameters: The previously created GraphicWin object, the step goal, the list of steps the user
+                took throughout the week, the height of the graphic, and the width of the graphic.
+    Returns: The new GraphicWin object.
+    """
+    print("In generateGoalLine()")
+    pixelsPerStep = height * .9 / max(stepsInWeekList)  # calculates the pixels per step
+    heightOfGoalLine = pixelsPerStep * stepGoal  # calculates height of goal line
+    goalLine = Line(Point(0, heightOfGoalLine), Point(width, heightOfGoalLine))
+    goalLine.draw(graphicWindow)
+    return graphicWindow, heightOfGoalLine
+
+
+# --------------------------------------------------------- #
+
+def setBarText(graphicWindow, height, daysOfWeek, counter, widthOfBars, width):
+    """
+    Purpose: To set the text of each bar with the correct day.
+    Parameters: The GraphicWin object, the height of the graphic, the list of the days of the week,
+                the previously used iteration counter, the width of the bars, and the width of the graphic.
+    Returns: The new GraphicWin object.
+    """
+    print("In setBarText()")
+    dayOfWeekLabel = Text(Point((counter * widthOfBars) + (widthOfBars * .5), height * .1), daysOfWeek[counter])
+    dayOfWeekLabel.draw(graphicWindow).setSize(calculateTextSize(width))
+    return graphicWindow
 
 
 # --------------------------------------------------------- #
@@ -252,11 +312,9 @@ def main():
 
     # calculate the size of the bars
     heightsOfBars, widthOfBars = calculateBarSize(stepsInWeekList, int(height), int(width))
-    print(f"Heights: {heightsOfBars}\nWidth: {widthOfBars}")
 
     # calculate the size of the text
     textSize = calculateTextSize(int(width))
-    print("Text size:", textSize)
 
     # generate the graphic
     generateGraphic(stepGoal, width, height, topPartHeight, heightsOfBars, widthOfBars,
