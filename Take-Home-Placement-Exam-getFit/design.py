@@ -148,10 +148,12 @@ def generateGraphic(stepGoal, width, height, totalSteps, avgOfSteps, topPartHeig
     """
     print("In generateGraphic()")
     graphicWindow = GraphWin("Get Fit!", width, height)  # creates new GraphWin object
+    graphicWindow.setCoords(0, 0, graphicWindow.getWidth(), graphicWindow.getHeight())
+    graphicWindow.setBackground("silver")
     createTopPartOfGraphic(graphicWindow)
+    # createBottomPartOfGraphic()
     graphicWindow.getMouse()  # Pause to view result
     graphicWindow.close()
-    # createBottomPartOfGraphic()
     return 1
 
 
