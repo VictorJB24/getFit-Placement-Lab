@@ -39,23 +39,8 @@ def getWeekStepData(filename):
     """
     print("In getWeekStepData()")
     weekStepData = [12345, 5671, 10975, 8909, 4655, 11412, 10402]
-    return weekStepData
-
-
-# --------------------------------------------------------- #
-
-def calculateAverageAndTotal(stepList):
-    """
-    Purpose: To calculate the total and average number of steps the user did throughout the week.
-    Parameters: A list of integers representing the number of steps the
-                user took on a certain day
-    Returns: One float representing  total steps the user took, and one
-            int representing the average number of steps the user took
-    """
-    print("In calculateAverageAndTotal()")
-    total = sum(stepList)
-    avg = total / len(stepList)
-    return total, int(avg)
+    daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    return weekStepData, daysOfWeek
 
 
 # --------------------------------------------------------- #
@@ -114,7 +99,7 @@ def calculateHeightOfOneBar(stepsInWeekList, pixelsPerStep):
                 calculateBarHeight().
     Returns: A list of floats representing the heights of each individual bar.
     """
-    print("In calculateHeightOfOneBar")
+    print("In calculateHeightOfOneBar()")
     barHeights = []
     for stepsInOneDay in stepsInWeekList:
         heightOfOneBar = pixelsPerStep * stepsInOneDay  # calculating the height of each bar individually
@@ -131,41 +116,111 @@ def calculateTextSize(width):
     Returns: A float representing the size of the text.
     """
     print("In calculateTextSize()")
-    textSize = width * .1  # calculating text size as ten percent of total width
+    textSize = int(width * .02)  # calculating text size as five percent of total width
+    if textSize > 36:  # making sure size is between legal constraints
+        textSize = 36
+    if textSize < 5:
+        textSize = 5
     return textSize
 
 
 # --------------------------------------------------------- #
 
-def generateGraphic(stepGoal, width, height, totalSteps, avgOfSteps, topPartHeight, heightsOfBars, widthOfBars,
-                    textSize):
+def generateGraphic(stepGoal, width, height, topPartHeight, heightsOfBars, widthOfBars,
+                    textSize, stepsInWeekList, daysOfWeek):
     """
     Purpose: To generate the final graphic.
-    Parameters: The step goal, total steps, average of steps, width and height of the graphic, individual heights of
-                each bar, widths of all the bars, the height of the top part of the graphic, and the
-                text size.
+    Parameters: The step goal, width and height of the graphic, individual heights of
+                each bar, widths of all the bars, the height of the top part of the graphic, the
+                text size, the list of steps the user walked throughout a given week, and the
+                names of the days of the week.
     Returns: None
     """
     print("In generateGraphic()")
     graphicWindow = GraphWin("Get Fit!", width, height)  # creates new GraphWin object
     graphicWindow.setCoords(0, 0, graphicWindow.getWidth(), graphicWindow.getHeight())
     graphicWindow.setBackground("silver")
-    createTopPartOfGraphic(graphicWindow)
-    # createBottomPartOfGraphic()
+    graphicWindow, totalSteps = createTopPartOfGraphic(graphicWindow, stepsInWeekList, stepGoal, textSize)
+    createBottomPartOfGraphic(graphicWindow, daysOfWeek, totalSteps, heightsOfBars, widthOfBars)
     graphicWindow.getMouse()  # Pause to view result
     graphicWindow.close()
-    return 1
 
 
 # --------------------------------------------------------- #
 
-def createTopPartOfGraphic(graphicWindow):
+def createTopPartOfGraphic(graphicWindow, stepsInWeekList, stepGoal, textSize):
     """
     Purpose: To create the top part of the graphic.
-    Parameters: The previously created instance of the GraphicWin object.
+    Parameters: The previously created instance of the GraphicWin object, the list of steps the
+                user walked throughout a given week, the step goal, and the text size.
     Returns: The modified GraphicWin object.
     """
     print("In createTopPartOfGraphic()")
+    topLeftCoordinate = Point(0, graphicWindow.getHeight())
+    rightSideCoordinate = Point(graphicWindow.getWidth(), graphicWindow.getHeight() * .9)
+    topPartRectangle = Rectangle(topLeftCoordinate, rightSideCoordinate)
+    topPartRectangle.draw(graphicWindow)
+    topPartRectangle.setFill("white")
+    topPartRectangle.setOutline("white")
+    graphicWindow, totalSteps = setTopPartText(graphicWindow, stepsInWeekList, stepGoal, textSize)
+    return graphicWindow, totalSteps
+
+
+# --------------------------------------------------------- #
+
+def setTopPartText(graphicWindow, stepsInWeekList, stepGoal, textSize):
+    """
+    Purpose: To set the text for the top part of the graphic.
+    Parameters: The previously created GraphicWin object, list of steps the user
+                walked throughout a given week, the step goal, and the text size.
+    Returns: The new GraphicWin object, and the total steps the person took.
+    """
+    print("In setTopPartText()")
+    totalSteps, avgOfSteps = calculateAverageAndTotal(stepsInWeekList)
+    stepGoalLabel = Text(Point(graphicWindow.getWidth() * 1 / 4, graphicWindow.getHeight() * .95),
+                         'Daily goal: ' + str(stepGoal))
+    averageLabel = Text(Point(graphicWindow.getWidth() * 1 / 2, graphicWindow.getHeight() * .95),
+                        'Average: ' + str(avgOfSteps))
+    totalLabel = Text(Point(graphicWindow.getWidth() * 3 / 4, graphicWindow.getHeight() * .95),
+                      'Total steps: ' + str(totalSteps))
+    stepGoalLabel.draw(graphicWindow).setSize(textSize)
+    averageLabel.draw(graphicWindow).setSize(textSize)
+    totalLabel.draw(graphicWindow).setSize(textSize)
+    return graphicWindow, totalSteps
+
+
+# --------------------------------------------------------- #
+
+def calculateAverageAndTotal(stepList):
+    """
+    Purpose: To calculate the total and average number of steps the user did throughout the week.
+    Parameters: A list of integers representing the number of steps the
+                user took on a certain day
+    Returns: One float representing  total steps the user took, and one
+            int representing the average number of steps the user took
+    """
+    print("In calculateAverageAndTotal()")
+    total = sum(stepList)
+    avg = total / len(stepList)
+    return total, int(avg)
+
+
+# --------------------------------------------------------- #
+
+def createBottomPartOfGraphic(graphicWindow, daysOfWeek, totalSteps, heightsOfBars, widthOfBars):
+    """
+    Purpose: To create the bottom part of the graphic.
+    Parameters: The names of the days of the week, the total steps the user took,
+    Returns: None
+    """
+    print("In createBottomPartOfGraphic()")
+    counter = 0
+    for element in heightsOfBars:
+        barUpperLeftCoord = Point(widthOfBars * (counter + 1), element)
+        barLowerRightCoord = Point(widthOfBars * (counter + 1), 400)
+        barRectangle = Rectangle(barUpperLeftCoord, barLowerRightCoord)
+        barRectangle.draw(graphicWindow)
+        print(element)
     roll = 1  # will use the random library to simulate a die roll
     return roll
 
@@ -185,16 +240,12 @@ def rollOne():
 
 # --------------------------------------------------------- #
 
-
 def main():
     # get the filename, step goal, width of window, and height of window
     filename, stepGoal, width, height = getUserData()
 
     # get the user's weekly step data from the file specified in getUserData()
-    stepsInWeekList = getWeekStepData(filename)
-
-    # calculate the average and total number of steps
-    totalSteps, avgOfSteps = calculateAverageAndTotal(stepsInWeekList)
+    stepsInWeekList, daysOfWeek = getWeekStepData(filename)
 
     # calculate the size of the top part of the graphic
     topPartHeight = getTopPartHeight(int(height))
@@ -208,12 +259,8 @@ def main():
     print("Text size:", textSize)
 
     # generate the graphic
-    generateGraphic(stepGoal, width, height, totalSteps, avgOfSteps, topPartHeight, heightsOfBars, widthOfBars,
-                    textSize)
-
-    # compute probability of rolling five of a kind with six-sided dice, & display probability & average
-    print("The average is: %f" % 1)
-    print("The probability is: %f" % (1 / 2))
+    generateGraphic(stepGoal, width, height, topPartHeight, heightsOfBars, widthOfBars,
+                    textSize, stepsInWeekList, daysOfWeek)
 
 
 main()
