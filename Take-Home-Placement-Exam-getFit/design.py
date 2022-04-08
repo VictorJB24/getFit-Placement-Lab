@@ -22,7 +22,7 @@ def getUserData():
     """
     print("In getData()")
     filename = "week1.data"
-    stepGoal = 10000
+    stepGoal = 7000
     width = 400
     height = 400
     return filename, stepGoal, width, height
